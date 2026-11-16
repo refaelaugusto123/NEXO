@@ -1,0 +1,23 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgtecladoair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11121d"/>
+      <stop offset="100%" stop-color="#171933"/>
+    </linearGradient>
+    <linearGradient id="gtecladoair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9b5cff"/>
+      <stop offset="100%" stop-color="#35e7ff"/>
+    </linearGradient>
+    <filter id="glowtecladoair" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#bgtecladoair)"/>
+  <circle cx="90" cy="500" r="160" fill="#9b5cff" opacity="0.08"/>
+  <circle cx="520" cy="80" r="180" fill="#35e7ff" opacity="0.08"/>
+  <g filter="url(#glowtecladoair)">
+    <rect x="130" y="260" width="340" height="110" rx="14" fill="none" stroke="url(#gtecladoair)" stroke-width="6"/>
+    <rect x="150" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="183" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="216" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="249" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="282" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="315" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="348" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="381" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="414" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="447" y="280" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="150" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="183" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="216" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="249" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="282" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="315" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="348" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="381" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="414" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="447" y="310" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="150" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="183" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="216" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="249" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="282" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="315" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="348" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="381" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="414" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/><rect x="447" y="340" width="22" height="17" rx="3" fill="url(#gtecladoair)" opacity="0.6"/>
+  </g>
+</svg>

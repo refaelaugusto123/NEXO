@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXO STORE — Acessórios Tecnológicos e Lifestyle</title>
+<meta name="description" content="NEXO STORE: teclados, mouses, mousepads, suportes, áudio e lifestyle tech com design moderno e entrega para todo o Brasil.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero fade-up">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <span class="hero-badge"><span class="dot-ping"></span>NOVA COLEÇÃO 2026</span>
+      <h1>Tecnologia que <span class="text-gradient">acompanha seu ritmo</span></h1>
+      <p class="lead">Teclados mecânicos, mouses de precisão e acessórios lifestyle com design neon e performance de verdade. Frete grátis acima de R$ 299.</p>
+      <div class="hero-actions">
+        <a href="/produtos.html" class="btn btn-primary btn-lg">Explorar produtos</a>
+        <a href="/produtos.html?on_sale=1" class="btn btn-outline btn-lg">Ver ofertas 🔥</a>
+      </div>
+    </div>
+    <svg class="hero-visual" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="heroG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3b8cff"/><stop offset="55%" stop-color="#9b5cff"/><stop offset="100%" stop-color="#35e7ff"/>
+      </linearGradient></defs>
+      <circle cx="200" cy="200" r="150" fill="none" stroke="url(#heroG)" stroke-width="2" opacity="0.5"/>
+      <circle cx="200" cy="200" r="110" fill="none" stroke="url(#heroG)" stroke-width="2" opacity="0.35" stroke-dasharray="6 10"/>
+      <rect x="120" y="160" width="160" height="90" rx="16" fill="none" stroke="url(#heroG)" stroke-width="4"/>
+      <circle cx="150" cy="190" r="8" fill="url(#heroG)"/>
+      <circle cx="180" cy="190" r="8" fill="url(#heroG)"/>
+      <circle cx="210" cy="190" r="8" fill="url(#heroG)"/>
+      <circle cx="240" cy="190" r="8" fill="url(#heroG)"/>
+      <circle cx="150" cy="220" r="8" fill="url(#heroG)"/>
+      <circle cx="180" cy="220" r="8" fill="url(#heroG)"/>
+      <circle cx="210" cy="220" r="8" fill="url(#heroG)"/>
+      <circle cx="240" cy="220" r="8" fill="url(#heroG)"/>
+    </svg>
+  </section>
+
+  <!-- PERKS -->
+  <div class="perk-strip" data-reveal>
+    <div class="perk-item"><div class="ic">🚚</div><div><div class="t">Frete grátis</div><div class="s">Acima de R$ 299</div></div></div>
+    <div class="perk-item"><div class="ic">🔒</div><div><div class="t">Compra segura</div><div class="s">PIX, cartão e boleto</div></div></div>
+    <div class="perk-item"><div class="ic">💎</div><div><div class="t">Fidelidade NEXO</div><div class="s">Até 50% de desconto</div></div></div>
+    <div class="perk-item"><div class="ic">↩️</div><div><div class="t">Troca garantida</div><div class="s">Até 30 dias</div></div></div>
+  </div>
+
+  <!-- CATEGORIAS -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Navegue por</span><h2>Categorias</h2></div>
+    </div>
+    <div class="category-grid" id="category-grid"></div>
+  </section>
+
+  <!-- DESTAQUES / LANÇAMENTOS -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Confira</span><h2>Destaques &amp; Lançamentos</h2></div>
+      <a href="/produtos.html?featured=1" class="see-all">Ver todos →</a>
+    </div>
+    <div class="product-grid" id="featured-grid"></div>
+  </section>
+
+  <!-- MAIS VENDIDOS -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Favoritos da galera</span><h2>Produtos mais vendidos</h2></div>
+      <a href="/produtos.html?bestseller=1" class="see-all">Ver todos →</a>
+    </div>
+    <div class="product-grid" id="bestseller-grid"></div>
+  </section>
+
+  <!-- OFERTAS -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Por tempo limitado</span><h2>Ofertas e promoções 🔥</h2></div>
+      <a href="/produtos.html?on_sale=1" class="see-all">Ver todas →</a>
+    </div>
+    <div class="product-grid" id="sale-grid"></div>
+  </section>
+
+  <!-- NOVIDADES -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Acabou de chegar</span><h2>Novidades</h2></div>
+      <a href="/produtos.html?is_new=1" class="see-all">Ver todas →</a>
+    </div>
+    <div class="product-grid" id="new-grid"></div>
+  </section>
+
+  <!-- AVALIAÇÕES DE CLIENTES -->
+  <section class="section" data-reveal>
+    <div class="section-head">
+      <div><span class="section-eyebrow">Confiança real</span><h2>O que nossos clientes dizem</h2></div>
+    </div>
+    <div class="product-grid cols-3" id="testimonials-grid"></div>
+  </section>
+
+  <!-- CTA FIDELIDADE -->
+  <section class="section" data-reveal>
+    <div class="hero" style="min-height:260px;">
+      <div class="hero-content" style="max-width:720px;">
+        <span class="hero-badge">PROGRAMA DE FIDELIDADE</span>
+        <h1 style="font-size:clamp(24px,3.4vw,36px);">Quanto mais você compra, <span class="text-gradient">mais você economiza</span></h1>
+        <p class="lead">Do nível Inicial (10% off) ao Diamante (até 50% off). Pontue em cada compra e suba de nível automaticamente.</p>
+        <div class="hero-actions">
+          <a href="/cadastro.html" class="btn btn-primary btn-lg">Criar minha conta grátis</a>
+          <a href="/conta.html#fidelidade" class="btn btn-outline btn-lg">Como funciona</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/products-ui.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

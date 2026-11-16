@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgcaixaorbit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11121d"/>
+      <stop offset="100%" stop-color="#171933"/>
+    </linearGradient>
+    <linearGradient id="gcaixaorbit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b8cff"/>
+      <stop offset="100%" stop-color="#35e7ff"/>
+    </linearGradient>
+    <filter id="glowcaixaorbit" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#bgcaixaorbit)"/>
+  <circle cx="90" cy="500" r="160" fill="#3b8cff" opacity="0.08"/>
+  <circle cx="520" cy="80" r="180" fill="#35e7ff" opacity="0.08"/>
+  <g filter="url(#glowcaixaorbit)">
+    <rect x="210" y="160" width="180" height="280" rx="36" fill="none" stroke="url(#gcaixaorbit)" stroke-width="7"/>
+    <circle cx="300" cy="260" r="46" fill="none" stroke="url(#gcaixaorbit)" stroke-width="5"/>
+    <circle cx="300" cy="360" r="28" fill="url(#gcaixaorbit)" opacity="0.6"/>
+  </g>
+</svg>

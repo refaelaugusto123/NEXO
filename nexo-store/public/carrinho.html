@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrinho — NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .cart-page-layout { display:grid; grid-template-columns: 1fr 380px; gap: 36px; align-items:start; }
+  .cart-row { display:grid; grid-template-columns: 90px 1fr auto auto; gap: 18px; align-items:center; padding: 18px 0; border-bottom:1px solid var(--border); }
+  .cart-row .thumb { width:90px;height:90px;border-radius:var(--radius-sm);background:var(--bg-2); overflow:hidden; }
+  .cart-row .thumb img { width:100%;height:100%;object-fit:contain;padding:8px; }
+  @media (max-width: 860px) {
+    .cart-page-layout { grid-template-columns: 1fr; }
+    .cart-row { grid-template-columns: 70px 1fr; }
+    .cart-row .qty-col, .cart-row .price-col { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="container section">
+  <h1 style="margin-bottom:26px;">Meu carrinho</h1>
+
+  <div id="cart-empty" class="empty-state" style="display:none;">
+    <div class="ic">🛒</div>
+    <p>Seu carrinho está vazio.</p>
+    <a href="/produtos.html" class="btn btn-primary">Explorar produtos</a>
+  </div>
+
+  <div class="cart-page-layout" id="cart-full" style="display:none;">
+    <div class="card" style="padding:24px;" id="cart-items-box"></div>
+
+    <div class="card" style="padding:24px;">
+      <h3 style="margin-bottom:18px;">Resumo do pedido</h3>
+      <div class="summary-line"><span>Subtotal</span><span id="summary-subtotal">R$ 0,00</span></div>
+      <div class="summary-line"><span>Peso total</span><span id="summary-weight">0 kg</span></div>
+      <p class="input-hint">Frete e cupom são calculados na etapa de checkout.</p>
+      <a href="/checkout.html" class="btn btn-primary btn-block btn-lg" style="margin-top:14px;">Ir para o checkout</a>
+      <a href="/produtos.html" class="btn btn-ghost btn-block" style="margin-top:10px;">Continuar comprando</a>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+function renderCartPage() {
+  const items = NexoCart.items;
+  document.getElementById('cart-empty').style.display = items.length ? 'none' : 'block';
+  document.getElementById('cart-full').style.display = items.length ? 'grid' : 'none';
+  if (!items.length) return;
+
+  document.getElementById('cart-items-box').innerHTML = items.map(i => `
+    <div class="cart-row">
+      <div class="thumb"><img src="${i.image_url}" alt=""></div>
+      <div>
+        <div style="font-weight:600;">${NexoUI.escapeHtml(i.name)}</div>
+        ${i.variant_label ? `<div style="font-size:12.5px;color:var(--text-muted);">${NexoUI.escapeHtml(i.variant_label)}</div>` : ''}
+        <button class="remove" style="color:var(--text-muted);font-size:12.5px;margin-top:6px;" data-remove="${i.product_id}:${i.variant_id||''}">Remover</button>
+      </div>
+      <div class="qty-col">
+        <div class="qty-control">
+          <button data-dec="${i.product_id}:${i.variant_id||''}">−</button>
+          <span>${i.quantity}</span>
+          <button data-inc="${i.product_id}:${i.variant_id||''}">+</button>
+        </div>
+      </div>
+      <div class="price-col" style="font-weight:700;">${NexoUI.formatBRL(i.unit_price * i.quantity)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('summary-subtotal').textContent = NexoUI.formatBRL(NexoCart.subtotal());
+  document.getElementById('summary-weight').textContent = NexoCart.totalWeight().toFixed(2) + ' kg';
+
+  document.querySelectorAll('[data-inc]').forEach(b => b.addEventListener('click', () => {
+    const [pid, vid] = b.dataset.inc.split(':');
+    const item = NexoCart.items.find(i => i.product_id == pid && (i.variant_id||'') == vid);
+    NexoCart.updateQty(Number(pid), vid?Number(vid):null, item.quantity+1);
+    renderCartPage();
+  }));
+  document.querySelectorAll('[data-dec]').forEach(b => b.addEventListener('click', () => {
+    const [pid, vid] = b.dataset.dec.split(':');
+    const item = NexoCart.items.find(i => i.product_id == pid && (i.variant_id||'') == vid);
+    NexoCart.updateQty(Number(pid), vid?Number(vid):null, item.quantity-1);
+    renderCartPage();
+  }));
+  document.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+    const [pid, vid] = b.dataset.remove.split(':');
+    NexoCart.remove(Number(pid), vid?Number(vid):null);
+    renderCartPage();
+  }));
+}
+
+(async function(){ await NexoAuth.init(); renderCartPage(); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Dashboard</h1>
+      <span class="pill pill-blue" id="admin-user-badge"></span>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Vendas totais (pagas)</div><div class="value" id="stat-sales">R$ 0,00</div></div>
+      <div class="stat-card"><div class="label">Pedidos totais</div><div class="value" id="stat-orders">0</div></div>
+      <div class="stat-card"><div class="label">Clientes cadastrados</div><div class="value" id="stat-customers">0</div></div>
+      <div class="stat-card"><div class="label">Produtos ativos</div><div class="value" id="stat-products">0</div></div>
+    </div>
+
+    <div class="panel">
+      <h3>Vendas nos últimos 14 dias</h3>
+      <div id="sales-chart" style="min-height:160px;display:flex;align-items:flex-end;gap:6px;"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="panel">
+        <h3>Produtos mais vendidos</h3>
+        <div id="top-products-list"></div>
+      </div>
+      <div class="panel">
+        <h3>Estoque baixo (≤5 unidades)</h3>
+        <div id="low-stock-list"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('dashboard');
+  document.getElementById('admin-app').style.display = 'grid';
+  document.getElementById('admin-user-badge').textContent = user.name;
+
+  try {
+    const data = await Api.get('/admin/dashboard');
+    document.getElementById('stat-sales').textContent = NexoUI.formatBRL(data.total_sales);
+    document.getElementById('stat-orders').textContent = data.total_orders;
+    document.getElementById('stat-customers').textContent = data.total_customers;
+    document.getElementById('stat-products').textContent = data.total_products;
+
+    const max = Math.max(1, ...data.sales_by_day.map(d => d.total));
+    document.getElementById('sales-chart').innerHTML = data.sales_by_day.length
+      ? data.sales_by_day.map(d => `
+        <div style="flex:1;text-align:center;">
+          <div style="height:${Math.max(4, (d.total/max)*130)}px;background:linear-gradient(180deg,var(--neon-cyan),var(--neon-blue));border-radius:4px 4px 0 0;" title="${NexoUI.formatBRL(d.total)}"></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${d.day.slice(5)}</div>
+        </div>
+      `).join('')
+      : '<p class="input-hint">Nenhuma venda registrada ainda.</p>';
+
+    document.getElementById('top-products-list').innerHTML = data.top_products.map(p => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+        <img src="${p.image_url}" style="width:36px;height:36px;object-fit:contain;background:var(--bg-2);border-radius:6px;">
+        <span style="flex:1;font-size:13.5px;">${NexoUI.escapeHtml(p.name)}</span>
+        <b>${p.sold_count} vendidos</b>
+      </div>
+    `).join('') || '<p class="input-hint">Sem dados ainda.</p>';
+
+    document.getElementById('low-stock-list').innerHTML = data.low_stock.length
+      ? data.low_stock.map(p => `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.5px;">
+          <span>${NexoUI.escapeHtml(p.name)}</span><span class="pill pill-red">${p.stock} un.</span>
+        </div>
+      `).join('')
+      : '<p class="input-hint">Nenhum produto com estoque baixo. ✅</p>';
+  } catch (err) {
+    NexoUI.toast(err.message, 'error');
+  }
+})();
+</script>
+</body>
+</html>

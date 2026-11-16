@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar conta — NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="container">
+  <div class="auth-shell card fade-up">
+    <h1>Criar minha conta</h1>
+    <p class="sub">Cadastre-se grátis e comece a acumular pontos no Programa de Fidelidade NEXO.</p>
+
+    <form id="register-form">
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" class="input" name="name" required minlength="2" placeholder="Seu nome completo">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" class="input" name="email" required placeholder="voce@email.com">
+      </div>
+      <div class="form-group">
+        <label>Telefone / WhatsApp</label>
+        <input type="tel" class="input" name="phone" required placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" class="input" name="password" required minlength="6" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" class="input" name="password_confirm" required minlength="6" placeholder="Repita a senha">
+      </div>
+      <div class="checkbox-row" style="margin-bottom:20px;">
+        <input type="checkbox" id="terms" required>
+        <label for="terms">Concordo com os Termos de Uso e a Política de Privacidade (LGPD)</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="register-submit-btn">Criar conta grátis</button>
+    </form>
+
+    <div class="auth-switch">Já tem conta? <a href="/login.html">Entrar</a></div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+(async function(){ await NexoAuth.init(); if (NexoAuth.isLoggedIn()) window.location.href = '/conta.html'; })();
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (data.password !== data.password_confirm) {
+    NexoUI.toast('As senhas não coincidem.', 'error');
+    return;
+  }
+  const btn = document.getElementById('register-submit-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    await NexoAuth.register({ name: data.name, email: data.email, phone: data.phone, password: data.password });
+    NexoUI.toast('Conta criada com sucesso! Bem-vindo à NEXO STORE.', 'success');
+    window.location.href = '/conta.html';
+  } catch (err) {
+    NexoUI.toast(err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Criar conta grátis';
+  }
+});
+</script>
+</body>
+</html>

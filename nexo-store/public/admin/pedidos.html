@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Pedidos</h1>
+      <div style="display:flex;gap:10px;">
+        <input class="input" id="search-input" placeholder="Buscar por cliente, e-mail ou número..." style="width:280px;">
+        <select class="input" id="status-filter" style="width:200px;">
+          <option value="">Todos os status</option>
+          <option value="aguardando_pagamento">Aguardando pagamento</option>
+          <option value="pago">Pago</option>
+          <option value="separando">Separando</option>
+          <option value="enviado">Enviado</option>
+          <option value="entregue">Entregue</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel">
+      <table class="data-table">
+        <thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Rastreamento</th><th>Ações</th></tr></thead>
+        <tbody id="orders-tbody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="order-modal">
+  <div class="modal-box">
+    <h3>Atualizar pedido</h3>
+    <form id="order-form">
+      <input type="hidden" id="o-id">
+      <div class="form-group">
+        <label>Status</label>
+        <select class="input" id="o-status">
+          <option value="aguardando_pagamento">Aguardando pagamento</option>
+          <option value="pago">Pago</option>
+          <option value="separando">Separando</option>
+          <option value="enviado">Enviado</option>
+          <option value="entregue">Entregue</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Código de rastreamento</label><input class="input" id="o-tracking-code" placeholder="BR123456789XX"></div>
+      <div class="form-group"><label>Status de entrega (mensagem ao cliente)</label><input class="input" id="o-tracking-status" placeholder="Ex: Saiu para entrega"></div>
+      <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+      <button type="button" class="btn btn-ghost btn-block" id="close-order-modal" style="margin-top:8px;">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+const STATUS_LABELS = {
+  aguardando_pagamento: { label: 'Aguardando pagto', pill: 'pill-yellow' },
+  pago: { label: 'Pago', pill: 'pill-blue' },
+  separando: { label: 'Separando', pill: 'pill-purple' },
+  enviado: { label: 'Enviado', pill: 'pill-blue' },
+  entregue: { label: 'Entregue', pill: 'pill-green' },
+  cancelado: { label: 'Cancelado', pill: 'pill-red' },
+};
+
+async function loadOrders() {
+  const search = document.getElementById('search-input').value;
+  const status = document.getElementById('status-filter').value;
+  const q = new URLSearchParams();
+  if (search) q.set('search', search);
+  if (status) q.set('status', status);
+
+  const { orders } = await Api.get(`/admin/orders?${q.toString()}`);
+  document.getElementById('orders-tbody').innerHTML = orders.map(o => {
+    const st = STATUS_LABELS[o.status] || { label: o.status, pill: 'pill-gray' };
+    return `
+    <tr>
+      <td><b>${o.order_number}</b><br><span style="font-size:11.5px;color:var(--text-muted);">${NexoUI.formatDate(o.created_at)}</span></td>
+      <td>${NexoUI.escapeHtml(o.customer_name)}<br><span style="font-size:11.5px;color:var(--text-muted);">${NexoUI.escapeHtml(o.customer_email)}</span></td>
+      <td>${NexoUI.formatBRL(o.total)}</td>
+      <td>${o.payment_method} <br><span class="pill ${o.payment_status === 'pago' ? 'pill-green' : 'pill-yellow'}">${o.payment_status}</span></td>
+      <td><span class="pill ${st.pill}">${st.label}</span></td>
+      <td style="font-size:12px;">${o.tracking_status || '-'}${o.tracking_code ? `<br>${o.tracking_code}` : ''}</td>
+      <td><button class="btn btn-ghost btn-sm" data-edit-order="${o.id}">Gerenciar</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhum pedido encontrado.</td></tr>';
+
+  document.querySelectorAll('[data-edit-order]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const order = orders.find(o => o.id == btn.dataset.editOrder);
+      document.getElementById('o-id').value = order.id;
+      document.getElementById('o-status').value = order.status;
+      document.getElementById('o-tracking-code').value = order.tracking_code || '';
+      document.getElementById('o-tracking-status').value = order.tracking_status || '';
+      document.getElementById('order-modal').classList.add('open');
+    });
+  });
+}
+
+document.getElementById('close-order-modal').addEventListener('click', () => document.getElementById('order-modal').classList.remove('open'));
+document.getElementById('order-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('o-id').value;
+  try {
+    await Api.put(`/admin/orders/${id}`, {
+      status: document.getElementById('o-status').value,
+      tracking_code: document.getElementById('o-tracking-code').value,
+      tracking_status: document.getElementById('o-tracking-status').value,
+    });
+    NexoUI.toast('Pedido atualizado!', 'success');
+    document.getElementById('order-modal').classList.remove('open');
+    loadOrders();
+  } catch (err) { NexoUI.toast(err.message, 'error'); }
+});
+
+document.getElementById('search-input').addEventListener('input', NexoUI.debounce(loadOrders, 400));
+document.getElementById('status-filter').addEventListener('change', loadOrders);
+
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('pedidos');
+  document.getElementById('admin-app').style.display = 'grid';
+  loadOrders();
+})();
+</script>
+</body>
+</html>

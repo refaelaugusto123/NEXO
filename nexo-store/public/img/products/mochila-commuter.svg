@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgmochilacommuter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11121d"/>
+      <stop offset="100%" stop-color="#171933"/>
+    </linearGradient>
+    <linearGradient id="gmochilacommuter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9b5cff"/>
+      <stop offset="100%" stop-color="#35e7ff"/>
+    </linearGradient>
+    <filter id="glowmochilacommuter" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#bgmochilacommuter)"/>
+  <circle cx="90" cy="500" r="160" fill="#9b5cff" opacity="0.08"/>
+  <circle cx="520" cy="80" r="180" fill="#35e7ff" opacity="0.08"/>
+  <g filter="url(#glowmochilacommuter)">
+    <rect x="190" y="200" width="220" height="270" rx="40" fill="none" stroke="url(#gmochilacommuter)" stroke-width="7"/>
+    <rect x="225" y="160" width="150" height="70" rx="26" fill="none" stroke="url(#gmochilacommuter)" stroke-width="6"/>
+    <rect x="230" y="300" width="140" height="18" rx="6" fill="url(#gmochilacommuter)" opacity="0.6"/>
+  </g>
+</svg>

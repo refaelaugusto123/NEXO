@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Produto — NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .pd-layout { display:grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-bottom: 60px; }
+  .pd-gallery { position: sticky; top: calc(var(--header-h) + 20px); align-self: start; }
+  .pd-gallery .main-image { aspect-ratio:1/1; border-radius: var(--radius-lg); overflow:hidden; background: linear-gradient(160deg,#15172a,#0e0f1b); border:1px solid var(--border); }
+  .pd-gallery .main-image img { width:100%;height:100%;object-fit:contain;padding:30px; }
+  .pd-breadcrumb { font-size:13px; color:var(--text-muted); margin-bottom: 20px; }
+  .pd-breadcrumb a:hover { color: var(--neon-cyan); }
+  .pd-title { font-size: 28px; margin-bottom: 8px; }
+  .pd-rating { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-size:14px; color:var(--text-2); }
+  .pd-price-box { padding: 20px; border-radius: var(--radius-md); background: var(--gradient-card); border:1px solid var(--border); margin-bottom: 22px; }
+  .pd-stock { font-size: 13.5px; margin-top: 6px; }
+  .variant-group { margin-bottom: 18px; }
+  .variant-group .label { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+  .variant-options { display:flex; flex-wrap:wrap; gap: 8px; }
+  .variant-chip { padding: 9px 16px; border-radius: var(--radius-pill); border:1px solid var(--border-light); font-size:13.5px; cursor:pointer; transition: all .2s; }
+  .variant-chip:hover { border-color: var(--neon-blue); }
+  .variant-chip.selected { background: var(--gradient-main); color:#06060c; border-color:transparent; font-weight:700; }
+  .qty-row { display:flex; align-items:center; gap:16px; margin: 20px 0; }
+  .tabs { display:flex; gap: 6px; border-bottom:1px solid var(--border); margin: 40px 0 24px; }
+  .tab-btn { padding: 12px 18px; font-size:14.5px; font-weight:600; color:var(--text-2); border-bottom:2px solid transparent; }
+  .tab-btn.active { color:#fff; border-color: var(--neon-blue); }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+  .rating-summary { display:flex; gap: 30px; align-items:center; margin-bottom: 24px; flex-wrap:wrap; }
+  .rating-big { font-size: 48px; font-weight: 800; }
+  .rating-bars { flex:1; min-width:220px; }
+  .rating-bar-row { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--text-2); margin-bottom:6px; }
+  .rating-bar-row .progress-bar { flex:1; }
+  .related-section { margin-top: 60px; }
+  @media (max-width: 860px) {
+    .pd-layout { grid-template-columns: 1fr; gap: 24px; }
+    .pd-gallery { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="container section" id="product-root">
+  <div class="pd-breadcrumb"><a href="/">Início</a> / <a href="/produtos.html">Produtos</a> / <span id="breadcrumb-name">Carregando...</span></div>
+
+  <div id="loading-state"><div class="skeleton" style="height:400px;border-radius:22px;"></div></div>
+
+  <div class="pd-layout" id="pd-content" style="display:none;">
+    <div class="pd-gallery">
+      <div class="main-image"><img id="pd-image" src="" alt=""></div>
+    </div>
+
+    <div class="pd-info">
+      <span class="pill pill-blue" id="pd-category"></span>
+      <h1 class="pd-title" id="pd-name"></h1>
+      <div class="pd-rating">
+        <span class="stars" id="pd-stars" style="color:var(--neon-yellow);"></span>
+        <span id="pd-rating-text"></span>
+        <a href="#reviews-tab" id="pd-reviews-link" style="color:var(--neon-cyan);">Ver avaliações</a>
+      </div>
+
+      <p id="pd-short-desc"></p>
+
+      <div class="pd-price-box">
+        <div class="price-row" style="padding:0;">
+          <span class="price-old" id="pd-old-price" style="display:none;"></span>
+          <span class="price-now sale" id="pd-now-price" style="font-size:28px;"></span>
+          <span class="badge-tag sale" id="pd-discount-badge" style="display:none;"></span>
+        </div>
+        <div class="pd-stock" id="pd-stock"></div>
+      </div>
+
+      <div id="pd-variants"></div>
+
+      <div class="qty-row">
+        <div class="qty-control" style="border-color:var(--border-light);">
+          <button id="qty-dec">−</button>
+          <span id="qty-value">1</span>
+          <button id="qty-inc">+</button>
+        </div>
+        <button class="btn btn-primary btn-lg" id="pd-add-btn" style="flex:1;">🛒 Adicionar ao carrinho</button>
+      </div>
+      <button class="btn btn-outline btn-block" id="pd-buy-now-btn">Comprar agora</button>
+
+      <div class="perk-item" style="margin-top:24px;">
+        <div class="ic">🚚</div>
+        <div><div class="t">Calcule o frete</div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input class="input" id="pd-cep-input" placeholder="00000-000" style="max-width:160px;">
+            <button class="btn btn-ghost btn-sm" id="pd-cep-btn">Calcular</button>
+          </div>
+          <div id="pd-shipping-result" style="margin-top:10px;font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pd-tabs-root" style="display:none;">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="desc">Descrição</button>
+      <button class="tab-btn" data-tab="reviews" id="reviews-tab">Avaliações</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="desc">
+      <p id="pd-full-desc" style="max-width:800px;"></p>
+    </div>
+
+    <div class="tab-panel" data-panel="reviews">
+      <div class="rating-summary">
+        <div style="text-align:center;">
+          <div class="rating-big" id="rs-avg">0.0</div>
+          <div class="stars" id="rs-stars" style="color:var(--neon-yellow);"></div>
+          <div style="font-size:12.5px;color:var(--text-muted);"><span id="rs-count">0</span> avaliações</div>
+        </div>
+        <div class="rating-bars" id="rs-bars"></div>
+      </div>
+
+      <div class="card" style="padding:20px;margin-bottom:24px;" id="review-form-box">
+        <h4 style="margin-bottom:14px;">Deixe sua avaliação</h4>
+        <div id="review-login-prompt" style="display:none;">
+          <p>Você precisa <a href="/login.html" style="color:var(--neon-cyan);">entrar na sua conta</a> para avaliar este produto.</p>
+        </div>
+        <form id="review-form">
+          <div class="star-select" id="review-star-select">
+            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+          </div>
+          <input type="hidden" id="review-rating" value="0">
+          <div class="form-group" style="margin-top:14px;">
+            <textarea class="input" id="review-comment" placeholder="Conte sua experiência com o produto..." rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar avaliação</button>
+        </form>
+      </div>
+
+      <div id="reviews-list"></div>
+    </div>
+  </div>
+
+  <section class="related-section">
+    <div class="section-head">
+      <div><span class="section-eyebrow">Você também pode gostar</span><h2>Produtos relacionados</h2></div>
+    </div>
+    <div class="product-grid" id="related-grid"></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/products-ui.js"></script>
+<script src="/js/product-detail.js"></script>
+</body>
+</html>

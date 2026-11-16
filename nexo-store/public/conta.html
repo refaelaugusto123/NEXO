@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha Conta — NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .acc-panel { display:none; }
+  .acc-panel.active { display:block; }
+  .order-card { border:1px solid var(--border); border-radius: var(--radius-md); padding:20px; margin-bottom:16px; }
+  .order-card .head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+  .order-item-row { display:flex; justify-content:space-between; font-size:13.5px; padding:6px 0; border-bottom:1px solid var(--border); color:var(--text-1); }
+  .addr-mini { border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="container section" id="account-root" style="display:none;">
+  <h1 style="margin-bottom:26px;">Minha conta</h1>
+
+  <div class="account-layout">
+    <nav class="account-nav card" style="padding:14px;">
+      <a href="#perfil" data-panel-link="perfil" class="active">👤 Meus dados</a>
+      <a href="#enderecos" data-panel-link="enderecos">📍 Endereços</a>
+      <a href="#pedidos" data-panel-link="pedidos">📦 Meus pedidos</a>
+      <a href="#fidelidade" data-panel-link="fidelidade">💎 Fidelidade</a>
+      <a href="#" id="logout-link">🚪 Sair</a>
+    </nav>
+
+    <div>
+      <!-- PERFIL -->
+      <div class="acc-panel active" data-panel="perfil">
+        <div class="card" style="padding:26px;">
+          <h3 style="margin-bottom:18px;">Dados pessoais</h3>
+          <form id="profile-form">
+            <div class="input-row">
+              <div class="form-group"><label>Nome completo</label><input class="input" name="name" id="profile-name" required></div>
+              <div class="form-group"><label>Telefone</label><input class="input" name="phone" id="profile-phone"></div>
+            </div>
+            <div class="form-group"><label>E-mail (não pode ser alterado)</label><input class="input" id="profile-email" disabled></div>
+            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+          </form>
+        </div>
+
+        <div class="card" style="padding:26px;margin-top:20px;">
+          <h3 style="margin-bottom:18px;">Alterar senha</h3>
+          <form id="password-form">
+            <div class="input-row">
+              <div class="form-group"><label>Senha atual</label><input class="input" type="password" name="current_password" id="current-password"></div>
+              <div class="form-group"><label>Nova senha</label><input class="input" type="password" name="new_password" id="new-password" minlength="6"></div>
+            </div>
+            <button type="submit" class="btn btn-outline">Alterar senha</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ENDEREÇOS -->
+      <div class="acc-panel" data-panel="enderecos">
+        <div class="card" style="padding:26px;">
+          <h3 style="margin-bottom:18px;">Meus endereços</h3>
+          <div id="addresses-list"></div>
+          <button class="btn btn-ghost btn-sm" id="toggle-new-addr">+ Adicionar endereço</button>
+          <form id="addr-form" style="display:none;margin-top:16px;">
+            <div class="input-row">
+              <div class="form-group"><label>CEP</label><input class="input" name="cep" required placeholder="00000-000"></div>
+              <div class="form-group"><label>Número</label><input class="input" name="number"></div>
+            </div>
+            <div class="form-group"><label>Rua</label><input class="input" name="street" required></div>
+            <div class="input-row">
+              <div class="form-group"><label>Bairro</label><input class="input" name="neighborhood"></div>
+              <div class="form-group"><label>Complemento</label><input class="input" name="complement"></div>
+            </div>
+            <div class="input-row">
+              <div class="form-group"><label>Cidade</label><input class="input" name="city" required></div>
+              <div class="form-group"><label>Estado</label><input class="input" name="state" maxlength="2" required></div>
+            </div>
+            <div class="checkbox-row" style="margin-bottom:16px;"><input type="checkbox" name="is_default" id="addr-default"><label for="addr-default">Definir como padrão</label></div>
+            <button type="submit" class="btn btn-primary">Salvar endereço</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- PEDIDOS -->
+      <div class="acc-panel" data-panel="pedidos">
+        <div class="card" style="padding:26px;">
+          <h3 style="margin-bottom:18px;">Histórico de pedidos</h3>
+          <div id="orders-list"></div>
+        </div>
+      </div>
+
+      <!-- FIDELIDADE -->
+      <div class="acc-panel" data-panel="fidelidade">
+        <div class="card" style="padding:26px;margin-bottom:20px;">
+          <h3 style="margin-bottom:18px;">Seu código de fidelidade</h3>
+          <div class="loyalty-code-box">
+            <div>
+              <div style="font-size:12.5px;color:var(--text-muted);">Código exclusivo</div>
+              <div class="code" id="loyalty-code">NEXO-XXXX</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12.5px;color:var(--text-muted);">Seu nível</div>
+              <div id="loyalty-tier-label" style="font-weight:800;font-size:18px;" class="text-gradient">Cliente Inicial</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:26px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+            <span>Pontos acumulados: <b id="loyalty-points">0</b></span>
+            <span id="loyalty-next-info" style="color:var(--text-muted);font-size:13px;"></span>
+          </div>
+          <div class="progress-bar"><div class="fill" id="loyalty-progress-fill" style="width:0%;"></div></div>
+        </div>
+
+        <h3 style="margin-bottom:18px;">Níveis do programa</h3>
+        <div class="tier-grid" id="tier-grid"></div>
+
+        <div class="card" style="padding:22px;margin-top:24px;white-space:pre-line;font-size:13.5px;color:var(--text-1);" id="loyalty-rules"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="empty-state" id="account-login-required" style="display:none;">
+  <div class="ic">🔒</div>
+  <p>Você precisa entrar na sua conta para acessar esta página.</p>
+  <a href="/login.html?next=/conta.html" class="btn btn-primary">Entrar</a>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/conta.js"></script>
+</body>
+</html>

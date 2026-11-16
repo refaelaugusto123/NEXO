@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clientes — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Clientes</h1>
+      <input class="input" id="search-input" placeholder="Buscar por nome, e-mail ou código..." style="width:300px;">
+    </div>
+
+    <div class="panel">
+      <table class="data-table">
+        <thead><tr><th>Cliente</th><th>Contato</th><th>Código fidelidade</th><th>Nível</th><th>Pontos</th><th>Pedidos</th><th>Total gasto</th></tr></thead>
+        <tbody id="customers-tbody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+const TIER_LABELS = { inicial: 'Inicial', bronze: 'Bronze', prata: 'Prata', ouro: 'Ouro', diamante: 'Diamante' };
+const TIER_PILLS = { inicial: 'pill-gray', bronze: 'pill-yellow', prata: 'pill-blue', ouro: 'pill-purple', diamante: 'pill-green' };
+
+async function loadCustomers() {
+  const search = document.getElementById('search-input').value;
+  const q = search ? `?search=${encodeURIComponent(search)}` : '';
+  const { customers } = await Api.get(`/admin/customers${q}`);
+  document.getElementById('customers-tbody').innerHTML = customers.map(c => `
+    <tr>
+      <td><b>${NexoUI.escapeHtml(c.name)}</b><br><span style="font-size:11.5px;color:var(--text-muted);">Desde ${NexoUI.formatDate(c.created_at)}</span></td>
+      <td>${NexoUI.escapeHtml(c.email)}<br>${NexoUI.escapeHtml(c.phone||'')}</td>
+      <td><code>${c.loyalty_code}</code></td>
+      <td><span class="pill ${TIER_PILLS[c.loyalty_tier]||'pill-gray'}">${TIER_LABELS[c.loyalty_tier]||c.loyalty_tier}</span></td>
+      <td>${c.loyalty_points}</td>
+      <td>${c.orders_count}</td>
+      <td>${NexoUI.formatBRL(c.total_spent)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhum cliente encontrado.</td></tr>';
+}
+
+document.getElementById('search-input').addEventListener('input', NexoUI.debounce(loadCustomers, 400));
+
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('clientes');
+  document.getElementById('admin-app').style.display = 'grid';
+  loadCustomers();
+})();
+</script>
+</body>
+</html>

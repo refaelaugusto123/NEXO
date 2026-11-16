@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgheadsetsonic" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11121d"/>
+      <stop offset="100%" stop-color="#171933"/>
+    </linearGradient>
+    <linearGradient id="gheadsetsonic" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff5cc6"/>
+      <stop offset="100%" stop-color="#9b5cff"/>
+    </linearGradient>
+    <filter id="glowheadsetsonic" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#bgheadsetsonic)"/>
+  <circle cx="90" cy="500" r="160" fill="#ff5cc6" opacity="0.08"/>
+  <circle cx="520" cy="80" r="180" fill="#9b5cff" opacity="0.08"/>
+  <g filter="url(#glowheadsetsonic)">
+    <path d="M190 320 C190 220 240 160 300 160 C360 160 410 220 410 320" fill="none" stroke="url(#gheadsetsonic)" stroke-width="8"/>
+    <rect x="160" y="300" width="50" height="90" rx="20" fill="url(#gheadsetsonic)" opacity="0.75"/>
+    <rect x="390" y="300" width="50" height="90" rx="20" fill="url(#gheadsetsonic)" opacity="0.75"/>
+  </g>
+</svg>

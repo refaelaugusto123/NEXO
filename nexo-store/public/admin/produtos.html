@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produtos — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Produtos</h1>
+      <button class="btn btn-primary" id="new-product-btn">+ Novo produto</button>
+    </div>
+
+    <div class="panel">
+      <table class="data-table">
+        <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="products-tbody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de produto -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal-box" style="max-width:600px;">
+    <h3 id="modal-title">Novo produto</h3>
+    <form id="product-form">
+      <input type="hidden" id="p-id">
+      <div class="form-group"><label>Nome</label><input class="input" id="p-name" required></div>
+      <div class="form-group"><label>Descrição curta</label><input class="input" id="p-short-desc"></div>
+      <div class="form-group"><label>Descrição completa</label><textarea class="input" id="p-desc" rows="3"></textarea></div>
+      <div class="input-row">
+        <div class="form-group"><label>Preço (R$)</label><input class="input" type="number" step="0.01" id="p-price" required></div>
+        <div class="form-group"><label>Preço promocional (R$)</label><input class="input" type="number" step="0.01" id="p-promo"></div>
+      </div>
+      <div class="input-row">
+        <div class="form-group"><label>Estoque</label><input class="input" type="number" id="p-stock" required></div>
+        <div class="form-group"><label>Peso (kg)</label><input class="input" type="number" step="0.01" id="p-weight" value="0.3"></div>
+      </div>
+      <div class="input-row">
+        <div class="form-group"><label>Categoria</label><select class="input" id="p-category"></select></div>
+        <div class="form-group"><label>SKU</label><input class="input" id="p-sku"></div>
+      </div>
+      <div class="form-group"><label>URL da imagem</label><input class="input" id="p-image" placeholder="/img/products/exemplo.svg"></div>
+      <div style="display:flex;gap:18px;margin-bottom:18px;flex-wrap:wrap;">
+        <label class="checkbox-row"><input type="checkbox" id="p-featured"> Destaque</label>
+        <label class="checkbox-row"><input type="checkbox" id="p-bestseller"> Mais vendido</label>
+        <label class="checkbox-row"><input type="checkbox" id="p-new"> Novidade</label>
+        <label class="checkbox-row"><input type="checkbox" id="p-active" checked> Ativo</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Salvar produto</button>
+      <button type="button" class="btn btn-ghost btn-block" id="close-product-modal" style="margin-top:8px;">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+let categories = [];
+
+async function loadCategories() {
+  const data = await Api.get('/categories');
+  categories = data.categories;
+  document.getElementById('p-category').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+async function loadProducts() {
+  const { products } = await Api.get('/admin/products');
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = products.map(p => {
+    const cat = categories.find(c => c.id === p.category_id);
+    return `
+    <tr>
+      <td style="display:flex;align-items:center;gap:10px;">
+        <img src="${p.image_url}" style="width:40px;height:40px;object-fit:contain;background:var(--bg-2);border-radius:6px;">
+        <div>${NexoUI.escapeHtml(p.name)}<br><span style="font-size:11.5px;color:var(--text-muted);">${p.sku||''}</span></div>
+      </td>
+      <td>${cat ? cat.name : '-'}</td>
+      <td>${p.promo_price ? `<s style="color:var(--text-muted);">${NexoUI.formatBRL(p.price)}</s><br>${NexoUI.formatBRL(p.promo_price)}` : NexoUI.formatBRL(p.price)}</td>
+      <td>${p.stock}</td>
+      <td>${p.is_active ? '<span class="pill pill-green">Ativo</span>' : '<span class="pill pill-red">Inativo</span>'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" data-edit="${p.id}">Editar</button>
+        <button class="btn btn-danger btn-sm" data-del="${p.id}">Desativar</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => openModal(products.find(p => p.id == btn.dataset.edit))));
+  tbody.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
+    if (!confirm('Desativar este produto? Ele deixará de aparecer na loja.')) return;
+    await Api.del(`/admin/products/${btn.dataset.del}`);
+    loadProducts();
+  }));
+}
+
+function openModal(product) {
+  document.getElementById('modal-title').textContent = product ? 'Editar produto' : 'Novo produto';
+  document.getElementById('p-id').value = product?.id || '';
+  document.getElementById('p-name').value = product?.name || '';
+  document.getElementById('p-short-desc').value = product?.short_description || '';
+  document.getElementById('p-desc').value = product?.description || '';
+  document.getElementById('p-price').value = product?.price ?? '';
+  document.getElementById('p-promo').value = product?.promo_price ?? '';
+  document.getElementById('p-stock').value = product?.stock ?? 0;
+  document.getElementById('p-weight').value = product?.weight_kg ?? 0.3;
+  document.getElementById('p-category').value = product?.category_id || categories[0]?.id;
+  document.getElementById('p-sku').value = product?.sku || '';
+  document.getElementById('p-image').value = product?.image_url || '';
+  document.getElementById('p-featured').checked = !!product?.is_featured;
+  document.getElementById('p-bestseller').checked = !!product?.is_bestseller;
+  document.getElementById('p-new').checked = !!product?.is_new;
+  document.getElementById('p-active').checked = product ? !!product.is_active : true;
+  document.getElementById('product-modal').classList.add('open');
+}
+
+document.getElementById('new-product-btn').addEventListener('click', () => openModal(null));
+document.getElementById('close-product-modal').addEventListener('click', () => document.getElementById('product-modal').classList.remove('open'));
+
+document.getElementById('product-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('p-id').value;
+  const payload = {
+    name: document.getElementById('p-name').value,
+    short_description: document.getElementById('p-short-desc').value,
+    description: document.getElementById('p-desc').value,
+    price: Number(document.getElementById('p-price').value),
+    promo_price: document.getElementById('p-promo').value ? Number(document.getElementById('p-promo').value) : null,
+    stock: Number(document.getElementById('p-stock').value),
+    weight_kg: Number(document.getElementById('p-weight').value),
+    category_id: Number(document.getElementById('p-category').value),
+    sku: document.getElementById('p-sku').value,
+    image_url: document.getElementById('p-image').value || '/img/products/placeholder.svg',
+    is_featured: document.getElementById('p-featured').checked,
+    is_bestseller: document.getElementById('p-bestseller').checked,
+    is_new: document.getElementById('p-new').checked,
+    is_active: document.getElementById('p-active').checked,
+  };
+  try {
+    if (id) await Api.put(`/admin/products/${id}`, payload);
+    else await Api.post('/admin/products', payload);
+    NexoUI.toast('Produto salvo com sucesso!', 'success');
+    document.getElementById('product-modal').classList.remove('open');
+    loadProducts();
+  } catch (err) {
+    NexoUI.toast(err.message, 'error');
+  }
+});
+
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('produtos');
+  document.getElementById('admin-app').style.display = 'grid';
+  await loadCategories();
+  await loadProducts();
+})();
+</script>
+</body>
+</html>

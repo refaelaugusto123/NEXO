@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cupons — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Cupons de desconto</h1>
+      <button class="btn btn-primary" id="new-coupon-btn">+ Novo cupom</button>
+    </div>
+
+    <div class="panel">
+      <table class="data-table">
+        <thead><tr><th>Código</th><th>Descrição</th><th>Desconto</th><th>Pedido mínimo</th><th>Uso</th><th>Validade</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="coupons-tbody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal-box">
+    <h3 id="coupon-modal-title">Novo cupom</h3>
+    <form id="coupon-form">
+      <input type="hidden" id="c-id">
+      <div class="form-group"><label>Código</label><input class="input" id="c-code" style="text-transform:uppercase;" required></div>
+      <div class="form-group"><label>Descrição</label><input class="input" id="c-description"></div>
+      <div class="input-row">
+        <div class="form-group"><label>Tipo</label>
+          <select class="input" id="c-type"><option value="percent">Percentual (%)</option><option value="fixed">Valor fixo (R$)</option></select>
+        </div>
+        <div class="form-group"><label>Valor</label><input class="input" type="number" step="0.01" id="c-value" required></div>
+      </div>
+      <div class="input-row">
+        <div class="form-group"><label>Pedido mínimo (R$)</label><input class="input" type="number" step="0.01" id="c-min-order" value="0"></div>
+        <div class="form-group"><label>Limite de uso</label><input class="input" type="number" id="c-usage-limit" placeholder="Ilimitado"></div>
+      </div>
+      <div class="input-row">
+        <div class="form-group"><label>Válido a partir de</label><input class="input" type="date" id="c-valid-from"></div>
+        <div class="form-group"><label>Válido até</label><input class="input" type="date" id="c-valid-until"></div>
+      </div>
+      <label class="checkbox-row" style="margin-bottom:16px;"><input type="checkbox" id="c-active" checked> Cupom ativo</label>
+      <button type="submit" class="btn btn-primary btn-block">Salvar cupom</button>
+      <button type="button" class="btn btn-ghost btn-block" id="close-coupon-modal" style="margin-top:8px;">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+async function loadCoupons() {
+  const { coupons } = await Api.get('/admin/coupons');
+  document.getElementById('coupons-tbody').innerHTML = coupons.map(c => `
+    <tr>
+      <td><code>${c.code}</code></td>
+      <td>${NexoUI.escapeHtml(c.description||'')}</td>
+      <td>${c.discount_type === 'percent' ? c.value + '%' : NexoUI.formatBRL(c.value)}</td>
+      <td>${NexoUI.formatBRL(c.min_order)}</td>
+      <td>${c.used_count}${c.usage_limit ? ' / ' + c.usage_limit : ' (ilimitado)'}</td>
+      <td style="font-size:12px;">${c.valid_from||'—'} a ${c.valid_until||'—'}</td>
+      <td>${c.is_active ? '<span class="pill pill-green">Ativo</span>' : '<span class="pill pill-red">Inativo</span>'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" data-edit="${c.id}">Editar</button>
+        <button class="btn btn-danger btn-sm" data-del="${c.id}">Desativar</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Nenhum cupom cadastrado.</td></tr>';
+
+  document.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => openModal(coupons.find(c => c.id == btn.dataset.edit))));
+  document.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
+    if (!confirm('Desativar este cupom?')) return;
+    await Api.del(`/admin/coupons/${btn.dataset.del}`);
+    loadCoupons();
+  }));
+}
+
+function openModal(c) {
+  document.getElementById('coupon-modal-title').textContent = c ? 'Editar cupom' : 'Novo cupom';
+  document.getElementById('c-id').value = c?.id || '';
+  document.getElementById('c-code').value = c?.code || '';
+  document.getElementById('c-code').disabled = !!c;
+  document.getElementById('c-description').value = c?.description || '';
+  document.getElementById('c-type').value = c?.discount_type || 'percent';
+  document.getElementById('c-value').value = c?.value ?? '';
+  document.getElementById('c-min-order').value = c?.min_order ?? 0;
+  document.getElementById('c-usage-limit').value = c?.usage_limit ?? '';
+  document.getElementById('c-valid-from').value = c?.valid_from || '';
+  document.getElementById('c-valid-until').value = c?.valid_until || '';
+  document.getElementById('c-active').checked = c ? !!c.is_active : true;
+  document.getElementById('coupon-modal').classList.add('open');
+}
+
+document.getElementById('new-coupon-btn').addEventListener('click', () => openModal(null));
+document.getElementById('close-coupon-modal').addEventListener('click', () => document.getElementById('coupon-modal').classList.remove('open'));
+
+document.getElementById('coupon-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('c-id').value;
+  const payload = {
+    code: document.getElementById('c-code').value.toUpperCase(),
+    description: document.getElementById('c-description').value,
+    discount_type: document.getElementById('c-type').value,
+    value: Number(document.getElementById('c-value').value),
+    min_order: Number(document.getElementById('c-min-order').value) || 0,
+    usage_limit: document.getElementById('c-usage-limit').value || null,
+    valid_from: document.getElementById('c-valid-from').value || null,
+    valid_until: document.getElementById('c-valid-until').value || null,
+    is_active: document.getElementById('c-active').checked,
+  };
+  try {
+    if (id) await Api.put(`/admin/coupons/${id}`, payload);
+    else await Api.post('/admin/coupons', payload);
+    NexoUI.toast('Cupom salvo!', 'success');
+    document.getElementById('coupon-modal').classList.remove('open');
+    loadCoupons();
+  } catch (err) { NexoUI.toast(err.message, 'error'); }
+});
+
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('cupons');
+  document.getElementById('admin-app').style.display = 'grid';
+  loadCoupons();
+})();
+</script>
+</body>
+</html>

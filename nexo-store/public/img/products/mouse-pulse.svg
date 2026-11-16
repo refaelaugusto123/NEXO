@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgmousepulse" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11121d"/>
+      <stop offset="100%" stop-color="#171933"/>
+    </linearGradient>
+    <linearGradient id="gmousepulse" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#35e7ff"/>
+      <stop offset="100%" stop-color="#3b8cff"/>
+    </linearGradient>
+    <filter id="glowmousepulse" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#bgmousepulse)"/>
+  <circle cx="90" cy="500" r="160" fill="#35e7ff" opacity="0.08"/>
+  <circle cx="520" cy="80" r="180" fill="#3b8cff" opacity="0.08"/>
+  <g filter="url(#glowmousepulse)">
+    <path d="M300 160 C380 160 420 230 420 330 C420 430 370 470 300 470 C230 470 180 430 180 330 C180 230 220 160 300 160 Z" fill="none" stroke="url(#gmousepulse)" stroke-width="7"/>
+    <line x1="300" y1="160" x2="300" y2="280" stroke="url(#gmousepulse)" stroke-width="5"/>
+    <ellipse cx="300" cy="230" rx="14" ry="40" fill="url(#gmousepulse)" opacity="0.7"/>
+  </g>
+</svg>

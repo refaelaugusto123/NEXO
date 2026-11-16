@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fidelidade — Admin NEXO STORE</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="admin-shell" id="admin-app" style="display:none;">
+  <aside class="admin-sidebar" id="admin-sidebar"></aside>
+  <main class="admin-main">
+    <div class="admin-topbar"><h1>Programa de Fidelidade</h1></div>
+
+    <div class="tier-grid" id="tier-overview" style="margin-bottom:26px;"></div>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;">
+      <div class="panel">
+        <h3>Top 10 clientes por pontos</h3>
+        <table class="data-table">
+          <thead><tr><th>Cliente</th><th>Código</th><th>Pontos</th><th>Nível</th><th>Ajustar</th></tr></thead>
+          <tbody id="top-customers-tbody"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Regras do programa</h3>
+        <p style="white-space:pre-line;font-size:13.5px;color:var(--text-1);" id="rules-text"></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="adjust-modal">
+  <div class="modal-box">
+    <h3>Ajustar pontos manualmente</h3>
+    <form id="adjust-form">
+      <input type="hidden" id="a-user-id">
+      <div class="form-group"><label>Pontos (use negativo para remover)</label><input class="input" type="number" id="a-points" required></div>
+      <div class="form-group"><label>Motivo</label><input class="input" id="a-reason" placeholder="Ex: Bônus de aniversário"></div>
+      <button type="submit" class="btn btn-primary btn-block">Aplicar ajuste</button>
+      <button type="button" class="btn btn-ghost btn-block" id="close-adjust-modal" style="margin-top:8px;">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/components.js"></script>
+<script src="js/admin-shell.js"></script>
+<script>
+const icons = { inicial: '🌱', bronze: '🥉', prata: '🥈', ouro: '🥇', diamante: '💎' };
+
+async function loadLoyalty() {
+  const data = await Api.get('/admin/loyalty');
+  document.getElementById('tier-overview').innerHTML = data.tiers.map(t => `
+    <div class="tier-card">
+      <div class="tier-icon">${icons[t.key]||'⭐'}</div>
+      <div class="tier-name">${NexoUI.escapeHtml(t.label)}</div>
+      <div class="tier-disc">${t.discount_pct}%</div>
+      <div class="tier-pts">${t.min_points}+ pontos</div>
+      <div class="tier-pts" style="margin-top:6px;font-weight:700;color:var(--text-0);">${t.customers} clientes</div>
+    </div>
+  `).join('');
+
+  document.getElementById('top-customers-tbody').innerHTML = data.top_customers.map(c => `
+    <tr>
+      <td>${NexoUI.escapeHtml(c.name)}<br><span style="font-size:11.5px;color:var(--text-muted);">${NexoUI.escapeHtml(c.email)}</span></td>
+      <td><code>${c.loyalty_code}</code></td>
+      <td>${c.loyalty_points}</td>
+      <td>${icons[c.loyalty_tier]||''} ${c.loyalty_tier}</td>
+      <td><button class="btn btn-ghost btn-sm" data-adjust="${c.id}">Ajustar</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Nenhum cliente ainda.</td></tr>';
+
+  document.getElementById('rules-text').textContent = data.rules;
+
+  document.querySelectorAll('[data-adjust]').forEach(btn => btn.addEventListener('click', () => {
+    document.getElementById('a-user-id').value = btn.dataset.adjust;
+    document.getElementById('adjust-modal').classList.add('open');
+  }));
+}
+
+document.getElementById('close-adjust-modal').addEventListener('click', () => document.getElementById('adjust-modal').classList.remove('open'));
+document.getElementById('adjust-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userId = document.getElementById('a-user-id').value;
+  try {
+    await Api.post(`/admin/loyalty/${userId}/adjust`, {
+      points: Number(document.getElementById('a-points').value),
+      reason: document.getElementById('a-reason').value,
+    });
+    NexoUI.toast('Pontos ajustados!', 'success');
+    document.getElementById('adjust-modal').classList.remove('open');
+    loadLoyalty();
+  } catch (err) { NexoUI.toast(err.message, 'error'); }
+});
+
+(async function() {
+  const user = await AdminShell.requireAdmin();
+  if (!user) return;
+  AdminShell.renderSidebar('fidelidade');
+  document.getElementById('admin-app').style.display = 'grid';
+  loadLoyalty();
+})();
+</script>
+</body>
+</html>
